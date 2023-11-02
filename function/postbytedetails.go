@@ -8,17 +8,18 @@ import (
 	"net/http"
 )
 
-func PostBytesDetails(url string, formData *bytes.Buffer, writer string) ([]byte, error) {
+// PostByteDetails 发送get请求
+func PostByteDetails(url string, jsonData []byte) ([]byte, error) {
 
-	req, err := http.NewRequest("POST", url, formData)
+	req, err := http.NewRequest("POST", url, bytes.NewReader(jsonData))
 	if err != nil {
 		//fmt.Println("创建请求时发生错误:", err)
 		return nil, errors.New("创建请求时发生错误:" + err.Error())
 	}
 
 	// 设置请求头
-	req.Header.Set("Content-Type", writer)
-	req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOjExNTA0MzQsIkxvZ2luVmVyaWZ5IjoxLCJVbmlxdWVUb2tlbiI6IjBjMThiYzQ4LTYyMTktNDQ5Mi1hOTMxLTg3NTE2YjgxMzA4ZSIsIkFnZW50IjoiYW5kcm9pZCIsImV4cCI6MTY5ODU4NzgwMn0.AjFM7GIFacgIs9VAFTdyXn4aCbU4RHPfLnPik2ZLwBw")
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOjEyODE4ODcsIkxvZ2luVmVyaWZ5IjoxLCJVbmlxdWVUb2tlbiI6ImUxZGViZWZjLTAyZWEtNDBmZC05ZmI1LTQ0MWU0ZWZiZmYyMiIsIkFnZW50IjoiYW5kcm9pZCIsImV4cCI6MTY5OTI0NzEwOH0.ELZF0QwsPspMI--WAvlzDXKSAEaBgPp5egyoEjL_Su8")
 
 	// 发送POST请求
 	client := http.Client{}     // 创建一个HTTP客户端

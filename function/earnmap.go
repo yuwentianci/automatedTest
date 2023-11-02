@@ -1,7 +1,7 @@
 package function
 
-// GetTermDescription 获取文字描述
-func GetTermDescription(earnType string) string {
+// EarnTypeMap 获取文字描述
+func EarnTypeMap(earnType string) string {
 	earnTypes := map[string]string{
 		"Fixed":          "定期",
 		"Flexible":       "活期",
