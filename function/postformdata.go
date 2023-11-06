@@ -37,7 +37,7 @@ func PostFormData(url string, formData map[string]string, target interface{}) er
 
 	// 设置请求头
 	req.Header.Set("Content-Type", writer.FormDataContentType())
-	req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOjUxMzI0NTM0LCJMb2dpblZlcmlmeSI6MSwiVW5pcXVlVG9rZW4iOiIwMjRjODIwMi1jMGYzLTQyOWMtYjkyMC05OTNlNGZlODBlMzkiLCJBZ2VudCI6IndlYiIsImV4cCI6MTY5ODU4NDIyMX0.4MO3tx1_jh81X1iGR-fIEbRNLIkv-t3z5Uk6v6uEp6w")
+	req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOjUxMzI0NTM0LCJMb2dpblZlcmlmeSI6MSwiVW5pcXVlVG9rZW4iOiJiYTEzNmI2ZS1kY2U4LTQxNTAtODk0Ny1iNTE2Y2Q3OGM0YzQiLCJBZ2VudCI6IndlYiIsImV4cCI6MTY5OTYwMTA4NX0.7qfZfV9GrBpe6F0s2k0J_0T1c1v0yVgYDiHPWu4N0eU")
 
 	// 发送POST请求
 	client := &http.Client{}    // 创建一个HTTP客户端
