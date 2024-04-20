@@ -13,7 +13,7 @@ func FormatFloat(data string) float64 {
 	// 如果 data 是科学计数法，将格式化为 decimal 类型
 	dec, err := decimal.NewFromString(data)
 	if err != nil {
-		return -1
+		return 0
 	}
 	float, _ := dec.Float64()
 	return float

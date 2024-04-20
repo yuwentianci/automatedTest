@@ -12,7 +12,7 @@ type Identification struct {
 func (t *Identification) Identity() {
 
 	//创建要发送的 JSON 数据
-	formData := map[string]string{
+	formData := map[string]interface{}{
 		"number":     "14018112",
 		"last_name":  "树的影",
 		"type":       "id",

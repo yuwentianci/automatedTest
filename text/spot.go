@@ -2,6 +2,7 @@ package text
 
 import (
 	"fmt"
+	"github.com/shopspring/decimal"
 	"myapp/function"
 	"myapp/redata"
 	"strconv"
@@ -33,14 +34,14 @@ func (t *PostSpotCreateData) LimitBuy(market, price string, amount1, amount2 flo
 			defer wg.Done()
 
 			step := function.StepValue(amount1)
-			// 限价购买从20到23进行数量循环
+			// 限价购买从20到24进行数量循环
 			for amount := amount1; amount < amount2; amount += step {
 
 				// 添加表单字段
-				formData := map[string]string{
+				formData := map[string]interface{}{
 					"market": market,
 					"side":   "2",
-					"amount": strconv.FormatFloat(amount, 'f', 6, 64),
+					"amount": decimal.NewFromFloat(amount).String(),
 					"price":  price,
 				}
 
@@ -58,9 +59,9 @@ func (t *PostSpotCreateData) LimitBuy(market, price string, amount1, amount2 flo
 					amount, _ := strconv.ParseFloat(entry.Amount, 64)
 					price, _ := strconv.ParseFloat(entry.Price, 64)
 					total := amount * price
-					totalStr := strconv.FormatFloat(total, 'f', 6, 64)
+					totalDec := decimal.NewFromFloat(total)
 					ctime := time.Unix(int64(entry.Ctime), 0)
-					fmt.Println("序号:", counter, ctime.Format("2006-01-02 15:04:05"), "限价委托购买", entry.Market, "数量:", entry.Amount, "委托价格:", entry.Price, "购买合计:", totalStr, "手续费:", entry.DealFee)
+					fmt.Println("序号:", counter, ctime.Format("2006-01-02 15:04:05"), "限价委托购买", entry.Market, "数量:", entry.Amount, "委托价格:", entry.Price, "购买合计:", totalDec, "手续费:", entry.DealFee)
 				} else {
 					fmt.Printf("限价购买失败原因: %s\n", responseSpotOrderData.Message)
 				}
@@ -75,8 +76,9 @@ func (t *PostSpotCreateData) LimitBuy(market, price string, amount1, amount2 flo
 }
 
 // MarketBuy 现货市价购买
-func (*PostSpotCreateData) MarketBuy() {
+func (*PostSpotCreateData) MarketBuy(market string, total1, total2 float64) {
 	var wg sync.WaitGroup
+	counter := 1
 
 	// 启动5个goroutines并发发送市价购买请求
 	for i := 0; i < 1; i++ {
@@ -84,14 +86,19 @@ func (*PostSpotCreateData) MarketBuy() {
 		go func() {
 			defer wg.Done()
 
+			step := 0.1
+			stepDec := decimal.NewFromFloat(step)
+			total1Dec := decimal.NewFromFloat(total1)
+			total2Dec := decimal.NewFromFloat(total2)
+
 			// 市价购买从12到14进行购买总额循环
-			for amount := 12; amount <= 12; amount++ {
+			for total := total1Dec; total.Cmp(total2Dec) <= 0; total = total.Add(stepDec) {
 
 				// 添加表单字段
-				formData := map[string]string{
-					"market": "BONE_USDT",
+				formData := map[string]interface{}{
+					"market": market,
 					"side":   "2",
-					"amount": strconv.Itoa(amount),
+					"amount": total.String(),
 				}
 
 				// 创建一个POST请求
@@ -108,12 +115,15 @@ func (*PostSpotCreateData) MarketBuy() {
 					dealMoney, _ := strconv.ParseFloat(responseSpotOrderData.Result.DealMoney, 64)
 					dealStock, _ := strconv.ParseFloat(responseSpotOrderData.Result.DealStock, 64)
 					tradePrice := dealMoney / dealStock
+					tradePriceDec := decimal.NewFromFloat(tradePrice)
 					ctime := time.Unix(int64(responseSpotOrderData.Result.Ctime), 0)
-					fmt.Println(ctime.Format("2006-01-02 15:04:05"), "市价委托购买", responseSpotOrderData.Result.Market, "数量:", responseSpotOrderData.Result.DealStock, "成交价格:", tradePrice, "购买合计:", responseSpotOrderData.Result.DealMoney, "手续费:", responseSpotOrderData.Result.DealFee)
+					fmt.Println("序号:", counter, ctime.Format("2006-01-02 15:04:05"), "市价委托购买", responseSpotOrderData.Result.Market, "数量:", responseSpotOrderData.Result.DealStock, "成交价格:", tradePriceDec, "购买合计:", responseSpotOrderData.Result.DealMoney, "手续费:", responseSpotOrderData.Result.DealFee)
 				} else {
-					fmt.Printf("amount值为：%d，响应内容codedata: %d，messagedata: %s\n", amount,
-						responseSpotOrderData.Code, responseSpotOrderData.Message)
+					fmt.Printf("市价购买失败原因: %s\n", responseSpotOrderData.Message)
 				}
+
+				//递增计数器
+				counter++
 			}
 		}()
 	}
@@ -123,8 +133,9 @@ func (*PostSpotCreateData) MarketBuy() {
 }
 
 // LimitSell 现货限价出售
-func (t *PostSpotCreateData) LimitSell() {
+func (t *PostSpotCreateData) LimitSell(market, price string, amount1, amount2 float64) {
 	var wg sync.WaitGroup
+	counter := 1
 
 	// 启动5个goroutines并发发送限价出售请求
 	for i := 0; i < 1; i++ {
@@ -132,15 +143,16 @@ func (t *PostSpotCreateData) LimitSell() {
 		go func() {
 			defer wg.Done()
 
+			step := function.StepValue(amount1)
 			// 限价出售从10到13进行数量循环
-			for amount := 10; amount <= 10; amount++ {
+			for amount := amount1; amount < amount2; amount += step {
 
 				// 添加表单字段
-				formData := map[string]string{
-					"market": "BONE_USDT",
+				formData := map[string]interface{}{
+					"market": market,
 					"side":   "1",
-					"amount": strconv.Itoa(amount),
-					"price":  "1.05",
+					"amount": decimal.NewFromFloat(amount).String(),
+					"price":  price,
 				}
 
 				// 创建一个POST请求
@@ -154,15 +166,18 @@ func (t *PostSpotCreateData) LimitSell() {
 				}
 
 				if responseSpotOrderData.Result != nil {
-					amount, _ := strconv.ParseFloat(responseSpotOrderData.Result.Amount, 64)
-					price, _ := strconv.ParseFloat(responseSpotOrderData.Result.Price, 64)
-					total := amount * price
+					Amount, _ := strconv.ParseFloat(responseSpotOrderData.Result.Amount, 64)
+					Price, _ := strconv.ParseFloat(responseSpotOrderData.Result.Price, 64)
+					total := Amount * Price
 					totalStr := strconv.FormatFloat(total, 'f', 4, 64)
 					ctime := time.Unix(int64(responseSpotOrderData.Result.Ctime), 0)
-					fmt.Println(ctime.Format("2006-01-02 15:04:05"), "限价委托出售", responseSpotOrderData.Result.Market, "数量:", responseSpotOrderData.Result.Amount, "委托价格:", responseSpotOrderData.Result.Price, "合计:", totalStr, "费用deal_fee:", responseSpotOrderData.Result.DealFee)
+					fmt.Println("序号:", counter, ctime.Format("2006-01-02 15:04:05"), "限价委托出售", responseSpotOrderData.Result.Market, "数量:", responseSpotOrderData.Result.Amount, "委托价格:", responseSpotOrderData.Result.Price, "合计:", totalStr, "费用deal_fee:", responseSpotOrderData.Result.DealFee)
 				} else {
 					fmt.Printf("限价出售失败原因:%s\n", responseSpotOrderData.Message)
 				}
+
+				// 递增计数器
+				counter++
 			}
 		}()
 	}
@@ -172,8 +187,9 @@ func (t *PostSpotCreateData) LimitSell() {
 }
 
 // MarketSell 现货市价出售
-func (*PostSpotCreateData) MarketSell() {
+func (*PostSpotCreateData) MarketSell(market string, amount1, amount2 float64) {
 	var wg sync.WaitGroup
+	counter := 1
 
 	// 启动5个goroutines并发发送市价出售请求
 	for i := 0; i < 1; i++ {
@@ -181,14 +197,15 @@ func (*PostSpotCreateData) MarketSell() {
 		go func() {
 			defer wg.Done()
 
+			step := function.StepValue(amount1)
 			// 市价出售从13到15进行出售数量循环
-			for amount := 13; amount <= 16; amount++ {
+			for amount := amount1; amount <= amount2; amount += step {
 
 				// 添加表单字段
-				formData := map[string]string{
-					"market": "BONE_USDT",
+				formData := map[string]interface{}{
+					"market": market,
 					"side":   "1",
-					"amount": strconv.Itoa(amount),
+					"amount": decimal.NewFromFloat(amount).String(),
 				}
 
 				url := "https://www.biconomy.com/api/v1/user/trade/market"
@@ -205,12 +222,15 @@ func (*PostSpotCreateData) MarketSell() {
 					dealMoney, _ := strconv.ParseFloat(responseSpotOrderData.Result.DealMoney, 64)
 					amount, _ := strconv.ParseFloat(responseSpotOrderData.Result.Amount, 64)
 					tradePrice := dealMoney / amount
-					tradePriceStr := strconv.FormatFloat(tradePrice, 'f', 4, 64)
-					fmt.Println(ctime.Format("2006-01-02 15:04:05"), "市价委托出售", responseSpotOrderData.Result.Market, "数量:", responseSpotOrderData.Result.Amount, "交易价格:", tradePriceStr, "出售合计:", responseSpotOrderData.Result.DealMoney, "手续费:", responseSpotOrderData.Result.DealFee)
+					tradePriceStr := decimal.NewFromFloat(tradePrice)
+					fmt.Println("序号:", counter, ctime.Format("2006-01-02 15:04:05"), "市价委托出售", responseSpotOrderData.Result.Market, "数量:", responseSpotOrderData.Result.Amount, "交易价格:", tradePriceStr, "出售合计:", responseSpotOrderData.Result.DealMoney, "手续费:", responseSpotOrderData.Result.DealFee)
 				} else {
 					fmt.Printf("amount值为：%d，响应内容codedata: %d，messagedata: %s\n", amount,
 						responseSpotOrderData.Code, responseSpotOrderData.Message)
 				}
+
+				// 递增计数器
+				counter++
 			}
 		}()
 	}
@@ -222,7 +242,7 @@ func (*PostSpotCreateData) MarketSell() {
 // OpenOrder 当前委托隐藏其他交易对
 func (t *PostSpotCreateData) OpenOrder() {
 	// 添加表单字段
-	formData := map[string]string{
+	formData := map[string]interface{}{
 		"limit":  "101",
 		"market": "BONE_USDT",
 		"offset": "1",
@@ -270,7 +290,7 @@ func (t *PostSpotCreateData) OpenOrder() {
 // OrderHistory 历史委托隐藏其他交易对
 func (t *PostSpotCreateData) OrderHistory() {
 	// 添加表单字段
-	formData := map[string]string{
+	formData := map[string]interface{}{
 		"limit":  "101",
 		"market": "FIL_USDT",
 		"offset": "1",
@@ -343,7 +363,7 @@ func (t *PostSpotCreateData) OrderHistory() {
 // TradeHistory 历史成交隐藏其他交易对
 func (t *PostSpotCreateData) TradeHistory() {
 	// 添加表单字段
-	formData := map[string]string{
+	formData := map[string]interface{}{
 		"limit":  "10",
 		"market": "FIL_USDT",
 		"offset": "1",

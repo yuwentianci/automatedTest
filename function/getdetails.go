@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"myapp/config"
 	"net/http"
 	"time"
 )
@@ -19,7 +20,9 @@ func GetDetails(url string) ([]byte, error) {
 
 	// 设置请求头
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOjExNjQ4MjgsIkxvZ2luVmVyaWZ5IjoxLCJVbmlxdWVUb2tlbiI6Ijc4OGUzZTRkLWQzNTQtNDQwYi05MzhlLTdiNzI0OWEwNTJkMSIsIkFnZW50Ijoid2ViIiwiZXhwIjoxNjk3NTI4MDQzfQ.3Uip8syPc4x5V4y2J0m6Sx7FuuK47IhrB2bOleAB5sU")
+	req.Header.Set("x-requested-with", "XMLHttpRequest")
+	req.Header.Set("cookie", "")
+	req.Header.Set("Authorization", config.Token)
 
 	// 发送GET请求并获取响应
 	client := http.Client{}     // 创建一个HTTP客户端
