@@ -3,7 +3,7 @@ package config
 import "github.com/shopspring/decimal"
 
 const (
-	Token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOjEyODEzNTIsIkxvZ2luVmVyaWZ5IjoxLCJVbmlxdWVUb2tlbiI6ImZlZTQxZTU3LWRkNjktNDI3Yy04MzhmLTA2MTI5MWE3ZmI0MyIsIkFnZW50Ijoid2ViIiwiZXhwIjoxNzEzNTgzMzg1fQ.pJ38EqrUpfCvocDJaD7Wj0xpIQZxw-66oyyCj-st8oE"
+	Token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOjEyNDM3NjYsIkxvZ2luVmVyaWZ5IjoxLCJVbmlxdWVUb2tlbiI6IjYwMmJkM2QwLTFiOWQtNDc0Yy04OWQ0LTAyYTY4ODExNjE2OCIsIkFnZW50Ijoid2ViIiwiZXhwIjoxNzE1MzE1MDg4fQ.QkZTKHFdesmFJbZ-RTBogi-GiaWLaTjsQZGH8X1egKE"
 )
 
 var One = decimal.NewFromInt(int64(1))

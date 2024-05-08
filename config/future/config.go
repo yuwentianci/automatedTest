@@ -9,5 +9,7 @@ const (
 	LvgUrl          = Test + "/future/api/v1/private/position/lvg?symbol="
 	OpenOrderUrl    = Test + "/future/api/v1/private/order/list/openOrders?page_num=1&page_size=100"
 	AsserUrl        = Test + "/future/api/v1/private/account/assets"
-	Symbol          = "BTC_USDT"
+	AssetRecordUrl  = Test + "/future/api/v1/private/account/assetRecord?symbol=&pageSize=10"
+
+	Symbol = "BTC_USDT"
 )
