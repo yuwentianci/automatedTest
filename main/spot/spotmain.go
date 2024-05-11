@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"myapp/text"
+	"myapp/spot"
 	"sync"
 )
 
 func main() {
 	var wg sync.WaitGroup
 
-	aa := new(text.PostSpotCreateData)
+	aa := new(spot.PostSpotCreateData)
 
 	operations := []func(){
 		func() { aa.MarketBuy("PIT_USDT", 13.1, 15) },

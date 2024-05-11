@@ -1,4 +1,4 @@
-package text
+package earn
 
 import (
 	"encoding/json"

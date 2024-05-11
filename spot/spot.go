@@ -1,8 +1,9 @@
-package text
+package spot
 
 import (
 	"fmt"
 	"github.com/shopspring/decimal"
+	"myapp/config/spot"
 	"myapp/function"
 	"myapp/redata"
 	"strconv"
@@ -45,11 +46,9 @@ func (t *PostSpotCreateData) LimitBuy(market, price string, amount1, amount2 flo
 					"price":  price,
 				}
 
-				url := "https://www.biconomy.com/api/v1/user/trade/limit"
-
 				// 解析JSON响应
 				var responseSpotOrderData = redata.ResponseSpotOrderData{}
-				if err := function.PostFormData(url, formData, &responseSpotOrderData); err != nil {
+				if err := function.PostFormData(spot.LimitTradeUrl, formData, &responseSpotOrderData); err != nil {
 					fmt.Println(err.Error())
 					return
 				}
@@ -101,12 +100,9 @@ func (*PostSpotCreateData) MarketBuy(market string, total1, total2 float64) {
 					"amount": total.String(),
 				}
 
-				// 创建一个POST请求
-				url := "https://www.biconomy.com/api/v1/user/trade/market"
-
 				// 解析JSON响应
 				var responseSpotOrderData = redata.ResponseSpotOrderData{}
-				if err := function.PostFormData(url, formData, &responseSpotOrderData); err != nil {
+				if err := function.PostFormData(spot.MarketTradeUrl, formData, &responseSpotOrderData); err != nil {
 					fmt.Println(err.Error())
 					return
 				}
@@ -155,12 +151,9 @@ func (t *PostSpotCreateData) LimitSell(market, price string, amount1, amount2 fl
 					"price":  price,
 				}
 
-				// 创建一个POST请求
-				url := "https://www.biconomy.com/api/v1/user/trade/limit"
-
 				// 解析JSON响应
 				var responseSpotOrderData = redata.ResponseSpotOrderData{}
-				if err := function.PostFormData(url, formData, &responseSpotOrderData); err != nil {
+				if err := function.PostFormData(spot.LimitTradeUrl, formData, &responseSpotOrderData); err != nil {
 					fmt.Println(err.Error())
 					return
 				}
@@ -208,11 +201,9 @@ func (*PostSpotCreateData) MarketSell(market string, amount1, amount2 float64) {
 					"amount": decimal.NewFromFloat(amount).String(),
 				}
 
-				url := "https://www.biconomy.com/api/v1/user/trade/market"
-
 				// 解析JSON响应
 				var responseSpotOrderData = redata.ResponseSpotOrderData{}
-				if err := function.PostFormData(url, formData, &responseSpotOrderData); err != nil {
+				if err := function.PostFormData(spot.MarketTradeUrl, formData, &responseSpotOrderData); err != nil {
 					fmt.Println(err.Error())
 					return
 				}
@@ -249,11 +240,9 @@ func (t *PostSpotCreateData) OpenOrder() {
 		"side":   "0",
 	}
 
-	url := "https://www.biconomy.com/api/v4/user/order/openOrders"
-
 	// 解析JSON响应
 	var responseSpotTradeData = redata.ResponseSpotTradeData{}
-	if err := function.PostFormData(url, formData, &responseSpotTradeData); err != nil {
+	if err := function.PostFormData(spot.OpenOrderUrl, formData, &responseSpotTradeData); err != nil {
 		fmt.Println(err.Error())
 		return
 	}
@@ -298,12 +287,9 @@ func (t *PostSpotCreateData) OrderHistory() {
 		"status": "0",
 	}
 
-	// 创建一个POST请求
-	url := "https://www.biconomy.com/api/v4/user/order/orderHistory"
-
 	// 解析JSON响应
 	var responseSpotTradeData = redata.ResponseSpotTradeData{}
-	if err := function.PostFormData(url, formData, &responseSpotTradeData); err != nil {
+	if err := function.PostFormData(spot.OrderHistoryUrl, formData, &responseSpotTradeData); err != nil {
 		fmt.Println(err.Error())
 		return
 	}
@@ -370,12 +356,9 @@ func (t *PostSpotCreateData) TradeHistory() {
 		"side":   "0",
 	}
 
-	// 创建一个POST请求
-	url := "https://www.biconomy.com/api/v4/user/order/tradeHistory"
-
 	// 解析JSON响应
 	var responseSpotTradeData = redata.ResponseSpotTradeData{}
-	if err := function.PostFormData(url, formData, &responseSpotTradeData); err != nil {
+	if err := function.PostFormData(spot.TradeHistoryUrl, formData, &responseSpotTradeData); err != nil {
 		fmt.Println("解析JSON响应时发生错误:", err)
 		return
 	}
