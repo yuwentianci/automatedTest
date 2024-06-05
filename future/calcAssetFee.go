@@ -33,13 +33,13 @@ type AssetRecordInfo struct {
 	Symbol     string  `json:"s"`
 }
 
-func CalcFee(startTime, endTime int64, assetType string) (error, decimal.Decimal) {
+func CalcFee(symbol string, startTime, endTime int64, assetType string) (error, decimal.Decimal) {
 	totalFundingAmount := decimal.Zero
 	currentPage := 1
 
 	for {
 		// 构建当前页的URL
-		currentPageURL := fmt.Sprintf("%s&start_time=%d&end_time=%d&type=%s&currentPage=%d", config.AssetRecordUrl, startTime, endTime, assetType, currentPage)
+		currentPageURL := fmt.Sprintf("%s&symbol=%s&start_time=%d&end_time=%d&type=%s&currentPage=%d", config.AssetRecordUrl, symbol, startTime, endTime, assetType, currentPage)
 
 		responseTest, err := function.GetDetails(currentPageURL)
 		if err != nil {

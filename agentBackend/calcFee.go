@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/shopspring/decimal"
+	"myapp/config/agentBackend"
 	"myapp/function"
 )
 
@@ -29,8 +30,7 @@ type TradeResponse struct {
 }
 
 func CalcFee() (error, decimal.Decimal) {
-	url := "https://agent_new.biconomy.vip/api/v1/user/fundsorders/trading/histroy?uId=&userType=All&pageNumber=1&pageSize=100"
-	requestTest, err := function.GetDetails(url)
+	requestTest, err := function.GetDetails(agentBackend.HistoryTradeUrl)
 	if err != nil {
 		return err, decimal.Zero
 	}

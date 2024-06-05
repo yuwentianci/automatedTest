@@ -1,11 +1,11 @@
-package testFuture
+package future
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/shopspring/decimal"
-	"myapp/config/testFuture"
+	config "myapp/config/future"
 	"myapp/function"
 )
 
@@ -29,7 +29,7 @@ type OrderInfo struct {
 
 func CalcOrderMargin() (error, decimal.Decimal) {
 	totalOrderMargin := decimal.Zero
-	responseTest, err := function.GetDetails(testFuture.OpenOrdersUrl)
+	responseTest, err := function.GetDetails(config.OpenOrdersUrl)
 	if err != nil {
 		fmt.Println(err)
 	}

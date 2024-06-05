@@ -1,6 +1,9 @@
 package redata
 
-import "time"
+import (
+	"github.com/shopspring/decimal"
+	"time"
+)
 
 // BuyEarn 购买理财
 type BuyEarn struct {
@@ -26,18 +29,15 @@ type MyEarn struct {
 	Message string `json:"message"`
 	Result  struct {
 		Data []struct {
-			Token         string  `json:"token"`
-			APYRate       float64 `json:"apy_rate"`
-			TermType      string  `json:"term_type"`
-			Duration      int     `json:"duration"`
-			Amount        float64 `json:"amount"`
-			TotalEarnings string  `json:"total_earnings"`
-			EarningToken  string  `json:"earning_token"`
-			Status        string  `json:"status"`
-			InstanceID    string  `json:"instance_id"`
-			EarnSavingID  int     `json:"earn_saving_id"`
-			Icon          string  `json:"icon"`
-			IconFullName  string  `json:"icon_full_name"`
+			Token         string          `json:"token"`
+			APYRate       float64         `json:"apy_rate"`
+			TermType      string          `json:"term_type"`
+			Duration      int             `json:"duration"`
+			Amount        decimal.Decimal `json:"amount"`
+			TotalEarnings string          `json:"total_earnings"`
+			Status        string          `json:"status"`
+			InstanceID    string          `json:"instance_id"`
+			EarnSavingID  int             `json:"earn_saving_id"`
 		} `json:"data"`
 	} `json:"result"`
 }
@@ -167,19 +167,19 @@ type earnProductResult struct {
 
 // earnSaveList 理财产品result的earn_save_list数据
 type earnSaveList struct {
-	EarnSavingID      int       `json:"earn_saving_id"`
-	Type              string    `json:"type"`
-	TermType          string    `json:"term_type"`
-	Rate              float64   `json:"rate"`
-	RateDate          time.Time `json:"rate_date"`
-	TermAmount        int       `json:"term_amount"`
-	TermUnit          string    `json:"term_unit"`
-	InputMin          float64   `json:"input_min"`
-	TotalInputMax     float64   `json:"total_input_max"`
-	TotalCurrentInput float64   `json:"total_current_input"`
-	UserMaxAmount     int       `json:"user_max_amount"`
-	OrderMaxAmount    int       `json:"order_max_amount"`
-	Progress          float64   `json:"progress"`
+	EarnSavingID      int             `json:"earn_saving_id"`
+	Type              string          `json:"type"`
+	TermType          string          `json:"term_type"`
+	Rate              decimal.Decimal `json:"rate"`
+	RateDate          time.Time       `json:"rate_date"`
+	TermAmount        int             `json:"term_amount"`
+	TermUnit          string          `json:"term_unit"`
+	InputMin          decimal.Decimal `json:"input_min"`
+	TotalInputMax     decimal.Decimal `json:"total_input_max"`
+	TotalCurrentInput decimal.Decimal `json:"total_current_input"`
+	UserMaxAmount     decimal.Decimal `json:"user_max_amount"`
+	OrderMaxAmount    decimal.Decimal `json:"order_max_amount"`
+	Progress          decimal.Decimal `json:"progress"`
 	APYRateLine       struct {
 		XTime []interface{} `json:"x_time"`
 		YRate []interface{} `json:"y_rate"`
@@ -243,23 +243,23 @@ type earnHistoryResult struct {
 
 // earnHistoryData 理财申购记录result数据的data数据
 type earnHistoryData struct {
-	CreateAtUnix       int64  `json:"create_at_unix"`
-	CreateAtMilliUnix  int64  `json:"create_at_milli_unix"`
-	Time               string `json:"time"`
-	MobileTime         string `json:"mobile_time"`
-	TermType           string `json:"term_type"`
-	Token              string `json:"token"`
-	Amount             string `json:"amount"`
-	Type               string `json:"type"`
-	Status             string `json:"status"`
-	Icon               string `json:"icon"`
-	LockPeriod         int    `json:"lock_period"`
-	OriginalAmount     string `json:"original_amount"`
-	PrincipalRedeemed  string `json:"principal_redeemed"`
-	InterestPaid       string `json:"interest_paid"`
-	Rate               int    `json:"rate"`
-	RateDate           string `json:"rate_date"`
-	ActivityType       string `json:"activity_type"`
-	EarnSavingID       string `json:"earn_saving_id"`
-	RedemptionDateUnix int64  `json:"redemption_date_unix"`
+	CreateAtUnix       int64   `json:"create_at_unix"`
+	CreateAtMilliUnix  int64   `json:"create_at_milli_unix"`
+	Time               string  `json:"time"`
+	MobileTime         string  `json:"mobile_time"`
+	TermType           string  `json:"term_type"`
+	Token              string  `json:"token"`
+	Amount             string  `json:"amount"`
+	Type               string  `json:"type"`
+	Status             string  `json:"status"`
+	Icon               string  `json:"icon"`
+	LockPeriod         int     `json:"lock_period"`
+	OriginalAmount     string  `json:"original_amount"`
+	PrincipalRedeemed  string  `json:"principal_redeemed"`
+	InterestPaid       string  `json:"interest_paid"`
+	Rate               float64 `json:"rate"`
+	RateDate           string  `json:"rate_date"`
+	ActivityType       string  `json:"activity_type"`
+	EarnSavingID       string  `json:"earn_saving_id"`
+	RedemptionDateUnix int64   `json:"redemption_date_unix"`
 }

@@ -1,4 +1,4 @@
-package testFuture
+package future
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ func ReceiveGold() (error, decimal.Decimal) {
 		fmt.Println(err)
 	}
 
-	err, avlBal := AssetData()
+	err, avlBal := AssetsData()
 	if err != nil {
 		fmt.Println(err)
 	}

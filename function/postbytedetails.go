@@ -21,7 +21,7 @@ func PostByteDetails(url string, jsonData []byte) ([]byte, error) {
 
 	// 设置请求头
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOjEyODE4ODcsIkxvZ2luVmVyaWZ5IjoxLCJVbmlxdWVUb2tlbiI6ImUxZGViZWZjLTAyZWEtNDBmZC05ZmI1LTQ0MWU0ZWZiZmYyMiIsIkFnZW50IjoiYW5kcm9pZCIsImV4cCI6MTY5OTI0NzEwOH0.ELZF0QwsPspMI--WAvlzDXKSAEaBgPp5egyoEjL_Su8")
+	req.Header.Set("Authorization", config.Token)
 
 	// 发送POST请求
 	client := http.Client{}     // 创建一个HTTP客户端
@@ -67,6 +67,7 @@ func PostByteDetailsComplete(url string, rawData, target interface{}) error {
 	// 设置请求头
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	req.Header.Set("Authorization", config.Token)
+	req.Header.Set("token", config.Token)
 	// 发送POST请求
 	client := http.Client{}     // 创建一个HTTP客户端
 	resp, err := client.Do(req) // Do 方法发送请求，返回 HTTP 回复

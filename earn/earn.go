@@ -3,21 +3,18 @@ package earn
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/shopspring/decimal"
+	"myapp/config/earn"
 	"myapp/function"
 	"myapp/redata"
-	"strconv"
 	"sync"
 	"time"
 )
 
-type PostEarnCreateData struct {
-}
-
 // EarnProduct 查询理财产品
-func (t *PostEarnCreateData) EarnProduct(offset, limit int, asset string) {
-
+func EarnProduct(offset, limit int, asset string) {
 	// 创建一个 GET 请求
-	url := fmt.Sprintf("https://www.biconomy.com/api/activity/earn_saving/allearnterms?offset=%d&limit=%d&asset=%s", offset, limit, asset)
+	url := fmt.Sprintf(earn.EarnProductUrl+"offset=%d&limit=%d&asset=%s", offset, limit, asset)
 	responseText, err := function.GetDetails(url)
 	if err != nil {
 		fmt.Println(err)
@@ -42,24 +39,14 @@ func (t *PostEarnCreateData) EarnProduct(offset, limit int, asset string) {
 				earnTypeStr := function.EarnTypeMap(earnSaving.Type)
 				earnDays := ""
 				if earnTypeStr == "定期" {
-					earnDays = fmt.Sprintf("投资周期:%d天\n", earnSaving.TermAmount)
+					earnDays = fmt.Sprintf("投资周期: %d天", earnSaving.TermAmount)
 				}
 
-				quotient, _ := function.Divide(earnSaving.TotalCurrentInput, earnSaving.TotalInputMax)
-				Progress := function.FormatPercentage(quotient)
-				Rate := function.FormatPercentage(earnSaving.Rate)
-
 				fmt.Printf("%s产品ID: %d\n", earnSaving.Asset, earnSaving.EarnSavingID)
-				fmt.Printf("类型: %s\n", earnTypeStr)
-				fmt.Printf("年利率: %s\n", Rate)
-				fmt.Printf("%s", earnDays)
-				fmt.Printf("起投⾦额: %g\n", earnSaving.InputMin)
-				fmt.Printf("封顶⾦额: %g\n", earnSaving.TotalInputMax)
-				fmt.Printf("已购金额: %g\n", earnSaving.TotalCurrentInput)
-				fmt.Printf("单人最高⾦额: %d\n", earnSaving.UserMaxAmount)
-				fmt.Printf("单笔最高⾦额: %d\n", earnSaving.OrderMaxAmount)
-				fmt.Printf("进度: %s\n", Progress)
-				fmt.Printf("活动类型: %s\n", earnSaving.ActivityType)
+				fmt.Printf("类型: %s %s 活动类型: %s\n", earnTypeStr, earnDays, earnSaving.ActivityType)
+				fmt.Printf("起投⾦额: %s\n", earnSaving.InputMin)
+				fmt.Printf("已购金额: %s\n", earnSaving.TotalCurrentInput)
+				fmt.Printf("单人最高⾦额: %s，单笔最高⾦额: %s\n", earnSaving.UserMaxAmount, earnSaving.OrderMaxAmount)
 				fmt.Println()
 			}
 		}
@@ -71,24 +58,25 @@ func (t *PostEarnCreateData) EarnProduct(offset, limit int, asset string) {
 }
 
 // BuyEarn 购买理财产品
-func (t *PostEarnCreateData) BuyEarn(amount1, amount2 int) {
+func BuyEarn(earnID string, amount1, amount2 decimal.Decimal) {
 	var wg sync.WaitGroup
 
 	// 启动5个goroutines并发发送购买理财请求
-	for i := 0; i < 1; i++ {
+	for i := 0; i < 10; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 
+			stepDec := decimal.NewFromFloat(0.0001)
 			// 购买某一理财产品从20到23进行数量循环
-			for amount := amount1; amount <= amount2; amount++ {
+			for amount := amount1; amount.Cmp(amount2) <= 0; amount = amount.Add(stepDec) {
 
 				// 将amount转换为字符串类型
-				amountStr := strconv.Itoa(amount)
+				amountStr := amount.String()
 
 				// 创建要发送的 JSON 数据
 				requestData := map[string]interface{}{
-					"earn_saving_id": "95",
+					"earn_saving_id": earnID,
 					"amount":         amountStr,
 				}
 
@@ -100,34 +88,29 @@ func (t *PostEarnCreateData) BuyEarn(amount1, amount2 int) {
 				}
 
 				// 创建一个POST请求，将rawBytes作为请求主体数据
-				url := "https://www.biconomy.com/api/activity/earn_saving/order/create"
-				responseText, err := function.PostByteDetails(url, jsonData)
+				responseText, err := function.PostByteDetails(earn.BuyEarnUrl, jsonData)
 
 				// 解析JSON响应或处理raw格式响应，具体取决于API的响应类型
 				var BuyEarn = redata.BuyEarn{}
 				if err := json.Unmarshal(responseText, &BuyEarn); err != nil {
-					if BuyEarn.Result != nil {
-					}
-					fmt.Println("购买理财失败，失败原因:", BuyEarn.Message)
-					fmt.Println("解析JSON响应时发生错误:", err)
-					return
+					now := time.Now()
+					formattedTime := now.Format("2006-01-02 15:04:05")
+					fmt.Println(formattedTime, earnID, "购买失败，失败原因:", BuyEarn.Message)
+					//fmt.Println("解析JSON响应时发生错误:", err)
 				}
 
 				entry := BuyEarn.Result
+				if entry != nil && BuyEarn.Code == 0 {
+					// 将Unix时间戳转换为24小时制
+					ctime := function.To24H(entry.SubscriptionDate)
+					valueDate := function.To24H(entry.ValueDate)
+					interestDistribution := function.To24H(entry.InterestDistribution)
+					interestEndDate := function.To24H(entry.InterestEndDate)
+					redemptionDate := function.To24H(entry.RedemptionDate)
+					earnType := function.EarnTypeMap(entry.EarnType)
+					CNFormat := "%s 购买%s理财数量: %s 起息日: %s 发息日: %s 计息结束日: %s 赎回日: %s\n"
 
-				// 将Unix时间戳转换为24小时制
-				ctime := function.To24H(entry.SubscriptionDate)
-				valueDate := function.To24H(entry.ValueDate)
-				interestDistribution := function.To24H(entry.InterestDistribution)
-				interestEndDate := function.To24H(entry.InterestEndDate)
-				redemptionDate := function.To24H(entry.RedemptionDate)
-
-				earnType := function.EarnTypeMap(entry.EarnType)
-				CNFormat := "%s 购买%s理财数量: %s 起息日: %s 发息日: %s 计息结束日: %s 赎回日: %s\n"
-				if entry != nil {
 					fmt.Printf(CNFormat, ctime, earnType, entry.SubscriptionAmount, valueDate, interestDistribution, interestEndDate, redemptionDate)
-				} else {
-					fmt.Printf("amount值为：%d，响应内容codedata: %d，messagedata: %s\n", amount, BuyEarn.Code, BuyEarn.Message)
 				}
 			}
 		}()
@@ -137,11 +120,40 @@ func (t *PostEarnCreateData) BuyEarn(amount1, amount2 int) {
 	wg.Wait()
 }
 
+// MyFixedEarn 查询我的理财定期产品
+func MyFixedEarn(offset, limit int, asset string) {
+	totalAmounts := make(map[string]decimal.Decimal)
+	// 创建一个 GET 请求
+	url := fmt.Sprintf(earn.MyEarnUrl+"offset=%d&limit=%d&asset=%s&startTime=&endTime=&earnType=2", offset, limit, asset)
+	responseText, err := function.GetDetails(url)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	var MyEarn = redata.MyEarn{}
+	if err := json.Unmarshal(responseText, &MyEarn); err != nil {
+		fmt.Println("解析JSON响应时发生错误:", err)
+		return
+	}
+
+	if len(MyEarn.Result.Data) > 0 {
+		for _, entry := range MyEarn.Result.Data {
+			totalAmounts[entry.Token] = totalAmounts[entry.Token].Add(entry.Amount)
+		}
+	} else {
+		fmt.Println("没有数据，可能是没有购买过理财产品或者已购买的理财产品已被全部赎回")
+	}
+	for token, total := range totalAmounts {
+		fmt.Printf("币名: %s 总数: %s\n", token, total)
+	}
+	return
+}
+
 // MyEarn 查询我的理财产品
-func (t *PostEarnCreateData) MyEarn(offset, limit int, asset string) []string {
+func MyEarn(offset, limit int, asset string) []string {
 
 	// 创建一个 GET 请求
-	url := fmt.Sprintf("https://www.biconomy.com/api/activity/earn_saving/myearn?offset=%d&limit=%d&asset=%s", offset, limit, asset)
+	url := fmt.Sprintf(earn.MyEarnUrl+"offset=%d&limit=%d&asset=%s", offset, limit, asset)
 	responseText, err := function.GetDetails(url)
 	if err != nil {
 		fmt.Println(err)
@@ -172,13 +184,13 @@ func (t *PostEarnCreateData) MyEarn(offset, limit int, asset string) []string {
 }
 
 // MyEarnAssetsDetails 查询我的理财资产详情
-func (t *PostEarnCreateData) MyEarnAssetsDetails(idList []string) {
+func MyEarnAssetsDetails(idList []string) {
 	var MyEarnDetails = redata.MyEarnDetails{}
 	//client := http.Client{} // 创建一个HTTP客户端
 
 	// 创建一个 GET 请求
 	for i := 0; i < len(idList); i++ {
-		url := "https://www.biconomy.com/api/activity/earn_saving/instancedetail?instance_id=" + idList[i]
+		url := earn.MyEarnAssetsDetailsUrl + idList[i]
 		responseText, err := function.GetDetails(url)
 		if err != nil {
 			fmt.Println(err)
@@ -213,11 +225,9 @@ func (t *PostEarnCreateData) MyEarnAssetsDetails(idList []string) {
 }
 
 // MyEarnAssets 查询我的理财资产
-func (t *PostEarnCreateData) MyEarnAssets() {
-
+func MyEarnAssets() {
 	// 创建一个 GET 请求
-	url := "https://www.biconomy.com/api/activity/earn_saving/overview"
-	responseText, err := function.GetDetails(url)
+	responseText, err := function.GetDetails(earn.MyEarnAssetsUrl)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -238,10 +248,10 @@ func (t *PostEarnCreateData) MyEarnAssets() {
 }
 
 // EarnSaving 查询理财购买记录
-func (t *PostEarnCreateData) EarnSaving() {
+func EarnSaving() {
 
 	// 创建一个 GET 请求
-	url := "https://www.biconomy.com/api/activity/earn_saving/earnSaving/list?offset=1&limit=10"
+	url := earn.EarnSavingUrl + "offset=1&limit=10"
 	responseText, err := function.GetDetails(url)
 	if err != nil {
 		fmt.Println(err)
@@ -265,10 +275,9 @@ func (t *PostEarnCreateData) EarnSaving() {
 }
 
 // Redeem 查询理财赎回记录
-func (t *PostEarnCreateData) Redeem() {
-
+func Redeem() {
 	// 创建一个 GET 请求
-	url := "https://www.biconomy.com/api/activity/earn_saving/redeem/list?offset=1&limit=10"
+	url := earn.RedeemUrl + "offset=1&limit=10"
 	responseText, err := function.GetDetails(url)
 	if err != nil {
 		fmt.Println(err)
@@ -292,10 +301,9 @@ func (t *PostEarnCreateData) Redeem() {
 }
 
 // Profit 查询理财利息记录
-func (t *PostEarnCreateData) Profit() {
-
+func Profit() {
 	// 创建一个 GET 请求
-	url := "https://www.biconomy.com/api/activity/earn_saving/profit/list?offset=1&limit=10"
+	url := earn.ProfitUrl + "offset=1&limit=10"
 	responseText, err := function.GetDetails(url)
 	if err != nil {
 		fmt.Println(err)

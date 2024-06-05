@@ -8,8 +8,10 @@ import (
 	"myapp/function"
 )
 
-type Position struct {
-	Data []PositionInfo `json:"data"`
+type PositionData struct {
+	Success bool           `json:"success"`
+	Code    int            `json:"code"`
+	Data    []PositionInfo `json:"data"`
 }
 
 type PositionInfo struct {
@@ -20,6 +22,7 @@ type PositionInfo struct {
 	HoldAvgPrice   decimal.Decimal `json:"holdAvgPrice"`
 	LiquidatePrice decimal.Decimal `json:"liqPri"`
 	Oim            decimal.Decimal `json:"oim"`
+	IM             decimal.Decimal `json:"im"`
 	Leverage       int             `json:"leverage"`
 }
 
@@ -31,7 +34,7 @@ func OpenPosition() (error, []*PositionInfo) {
 		return err, nil
 	}
 
-	var positionData Position
+	var positionData PositionData
 	if err := json.Unmarshal(responseTest, &positionData); err != nil {
 		fmt.Println("解析JSON响应时发生错误:", err)
 		return err, nil

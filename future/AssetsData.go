@@ -1,11 +1,11 @@
-package testFuture
+package future
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/shopspring/decimal"
-	"myapp/config/testFuture"
+	config "myapp/config/future"
 	"myapp/function"
 )
 
@@ -26,8 +26,8 @@ type BalanceInfo struct {
 	FrozenBal      float64 `json:"frzBal"`
 }
 
-func AssetData() (error, decimal.Decimal) {
-	responseTest, err := function.GetDetails(testFuture.AssetUrl)
+func AssetsData() (error, decimal.Decimal) {
+	responseTest, err := function.GetDetails(config.AsserUrl)
 	if err != nil {
 		fmt.Println(err)
 	}

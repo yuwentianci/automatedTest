@@ -1,9 +1,8 @@
 package config
 
-import "github.com/shopspring/decimal"
-
 const (
-	Token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOjEyNDM3NjYsIkxvZ2luVmVyaWZ5IjoxLCJVbmlxdWVUb2tlbiI6IjUyN2NiZTFhLTk4ZWYtNGU5Yi1hMmM2LWJhMjM2MDE5ZWQzYyIsIkFnZW50Ijoid2ViIiwiZXhwIjoxNzE1NDEzNjc2fQ.jtUvjrC_43ecJ65Yr9YI_xQ5A0flrkB30GKkDkCRwCU"
+	// Token 线上token
+	Token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOjExOTA1MTMsIkxvZ2luVmVyaWZ5IjoxLCJVbmlxdWVUb2tlbiI6ImEzMzEyZjQxLWE1MTctNDk5NS05NTQwLWFiYmRlOTNmMWIyYSIsIkFnZW50Ijoid2ViIiwiZXhwIjoxNzE3ODM1OTMwfQ.AnWIxzavwXETwkzNwDXnGimRW4MXddl6tWcCLUKHSrk"
+	// Token 合约运营后台token
+	//Token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3MTY4Mjc4MDksInVzZXJJZCI6OSwidXNlcm5hbWUiOiJHZW9yZ2UwMDEifQ.4HegmOrO7doAu34YASgCe04dDx6ANhcwYMbsFUAxd-c"
 )
-
-var One = decimal.NewFromInt(int64(1))

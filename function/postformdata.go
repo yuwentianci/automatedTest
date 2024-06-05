@@ -7,31 +7,9 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"myapp/config"
 	"net/http"
 )
-
-const (
-	uid = 1293728 // 簿单用户: 1293728 持仓用户: 51324534 拉盘用户: 1281997
-)
-
-func userBearer(uid int) string {
-	// 簿单用户
-	placeOrdersUser := "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOjExNjQ4MjgsIkxvZ2luVmVyaWZ5IjoxLCJVbmlxdWVUb2tlbiI6ImQ4MmIzOWVlLTNmNWQtNDhlNS04NmQ3LWQzMzI1MWEzNjI0MyIsIkFnZW50Ijoid2ViIiwiZXhwIjoxNzA0NDI0NTE2fQ.yLmI7_xGuILTx61KQHxGqDGH71qYUDlX2_iiJfYHhbs"
-
-	// 持仓用户
-	PositionUser := "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOjUxMzI0NTM0LCJMb2dpblZlcmlmeSI6MSwiVW5pcXVlVG9rZW4iOiJlYmJlNGM2Zi1kNTQ1LTQ0MzAtOWJjOC03YjZkN2M4MjhjMzgiLCJBZ2VudCI6IndlYiIsImV4cCI6MTcwMDEyMjA1N30.7TyI-EC3l_tQ1l3wAxsMef67JlM6NtV47p26sEmk8nY"
-
-	// 拉盘用户
-	pullPlateUser := "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOjEyODE5OTcsIkxvZ2luVmVyaWZ5IjoxLCJVbmlxdWVUb2tlbiI6ImM4MzhhZTg5LTY2MTEtNDFmMS1iYmYxLTZhNjBmMTQyMzc3NSIsIkFnZW50Ijoid2ViIiwiZXhwIjoxNzAwMTQzMDUyfQ.fAh8yCV1xYiyLBlwRSTaW7Lqcb9_CDAjyEt8Uhws51w"
-	if uid == 1293728 {
-		return placeOrdersUser
-	} else if uid == 51324534 {
-		return PositionUser
-	} else if uid == 1281997 {
-		return pullPlateUser
-	}
-	return pullPlateUser
-}
 
 // PostFormData Post参数类型为formData
 func PostFormData(url string, formData map[string]interface{}, target interface{}) error {
@@ -59,8 +37,7 @@ func PostFormData(url string, formData map[string]interface{}, target interface{
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("x-requested-with", "XMLHttpRequest")
 	req.Header.Set("cookie", "_ga=GA1.2.168874534.1690809633; _ga_1VP9V64RZ9=GS1.1.1690809632.1.1.1690809813.15.0.0; _ga_MKMBT9R5FW=GS1.1.1690809632.1.1.1690809813.15.0.0; PHPSESSID=89a3dk4qe0g7jlqhot103f37bj; think_var=zh-cn")
-	//req.Header.Set("Authorization", userBearer(uid))
-	req.Header.Set("Authorization", "111100")
+	req.Header.Set("Authorization", config.Token)
 
 	// 发送POST请求
 	client := &http.Client{}    // 创建一个HTTP客户端

@@ -6,9 +6,9 @@ import (
 )
 
 func main() {
-	err, receiveGold := future.ReceiveGold()
+	err, totalPNL := future.TotalRealizedPNL("TRB_USDT")
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(receiveGold)
+	fmt.Println("totalPNL:", totalPNL)
 }

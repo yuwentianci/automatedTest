@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
-	"myapp/future"
+	"myapp/futureBackend"
 	"time"
 )
 
 func main() {
-	symbol := "BTC_USDT"
+	uid := 1190490
+	pageSize := 20
+	contractId := 10
 	startDate := "2024-05-25"
-	assetType := "FUNDING"
 
 	// 解析开始日期
 	startTime, err := time.ParseInLocation("2006-01-02", startDate, time.Local)
@@ -22,15 +23,12 @@ func main() {
 	startTime = time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 0, 0, 0, 0, time.Local)
 	startTimeUnix := startTime.UnixNano() / int64(time.Millisecond)
 
-	// 设置结束时间为当天的23:59:59
+	// 设置结束时间为开始时间的23:59:59
 	endTime := time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 23, 59, 59, 999999999, time.Local)
 	endTimeUnix := endTime.UnixNano() / int64(time.Millisecond)
-
-	err, assetFee := future.CalcFee(symbol, startTimeUnix, endTimeUnix, assetType)
+	err, totalVol, mm := futureBackend.CalcLiqOrder(uid, pageSize, contractId, startTimeUnix, endTimeUnix)
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
-
-	fmt.Println(assetType, "总费用为:", assetFee, startTimeUnix, endTimeUnix)
+	fmt.Println("合约强平仓位数量:", totalVol, "合约强平平台盈亏(U):", mm)
 }

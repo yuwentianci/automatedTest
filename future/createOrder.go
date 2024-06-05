@@ -21,13 +21,13 @@ type orderFailure struct {
 	Message string `json:"message"`
 }
 
-func Order(leverage, openType, sides, types int, price, symbol, amount string) (int, float64, error) {
+func Order(leverage, openType, sides, orderTypes int, price, symbol, amount string) (int, float64, error) {
 	// 获取当前时间戳
 	currentTime := function.NowToUnix()
 	// 构建 rawData
-	rawData := orderRawData(leverage, openType, types, sides, price, symbol, amount)
+	rawData := orderRawData(leverage, openType, orderTypes, sides, price, symbol, amount)
 	sideStr := function.FuturesSideMap(sides)
-	typeStr := function.FuturesTypeMap(types)
+	typeStr := function.FuturesTypeMap(orderTypes)
 
 	var orderSuccessData = orderSuccess{}
 	if err := function.PostByteDetailsComplete(openCloseUrl, rawData, &orderSuccessData); err != nil {
@@ -49,18 +49,18 @@ func Order(leverage, openType, sides, types int, price, symbol, amount string) (
 	return 1, currentTime, errors.New(typeStr + sideStr + "挂单失败:" + orderFailureData.Message)
 }
 
-func orderRawData(leverage, openType, types, sides int, price, symbol, amount string) map[string]interface{} {
+func orderRawData(leverage, openType, orderTypes, sides int, price, symbol, amount string) map[string]interface{} {
 	rawData := map[string]interface{}{
 		"leverage":  leverage,
 		"openType":  openType,
 		"symbol":    symbol,
 		"side":      sides,
-		"orderType": types,
+		"orderType": orderTypes,
 		"vol":       amount,
 	}
 
 	// 如果 types 等于 1，添加 price 字段
-	if types == 1 {
+	if orderTypes == 1 {
 		rawData["price"] = price
 	}
 
