@@ -1,8 +1,8 @@
 package config
 
 const (
-	Test = "https://api-future.biconomy.com"
-	//Test               = "https://future.biconomy.vip"
+	//Test = "https://api-future.biconomy.com"
+	Test               = "https://future.biconomy.vip"
 	DetailUrl          = Test + "/future/api/v1/detailV2?client=web"
 	OpenPositionUrl    = Test + "/future/api/v1/private/position/openPositions?symbol="
 	ChangeLvgUrl       = Test + "future/api/v1/private/position/changeLvg"
