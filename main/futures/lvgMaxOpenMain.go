@@ -14,6 +14,6 @@ func main() {
 	}
 
 	leverage := decimal.NewFromInt(int64(50))
-	level := future.RiskLevel(leverage, Symbol)
+	level := future.LeverageRiskLevel(leverage, Symbol)
 	fmt.Println(level)
 }

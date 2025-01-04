@@ -51,18 +51,23 @@ type DetailsPosition struct {
 	Data positionMmrData `json:"data"`
 }
 
-type positionMmrData map[string][]tradingPairs
+type positionMmrData map[string][]TradingPair
 
-type tradingPairs struct {
-	Imr       float64 `json:"imr"`
-	Symbol    string  `json:"symbol"`
-	Direction int     `json:"direction"`
-	OpenType  int     `json:"openType"`
-	Leverage  int     `json:"lvg"`
+type TradingPair struct {
+	Level        int             `json:"level"`        // 风险等级
+	MaxVol       int             `json:"maxVol"`       // 最大持仓量
+	MMR          decimal.Decimal `json:"mmr"`          // 维持保证金率
+	IMR          decimal.Decimal `json:"imr"`          // 初始保证金率
+	MaxLeverage  int             `json:"maxLeverage"`  // 最大杠杆
+	Symbol       string          `json:"symbol"`       // 交易对
+	PositionType int             `json:"positionType"` // 开仓类型
+	OpenType     int             `json:"openType"`     // 保证金模式
+	Leverage     int             `json:"leverage"`     // 杠杆倍数
+	LimitByAdmin bool            `json:"limitByAdmin"`
 }
 
 // PositionMmrDetails 持仓量对应维持保证率详情
-func PositionMmrDetails() (error, []*tradingPairs) {
+func PositionMmrDetails() (error, []*TradingPair) {
 	responseTest, err := function.GetDetails(config.RiskLimitUrl)
 	if err != nil {
 		fmt.Println(err)
@@ -74,7 +79,7 @@ func PositionMmrDetails() (error, []*tradingPairs) {
 		fmt.Println("解析JSON响应时发生错误:", err)
 		return err, nil
 	}
-	var result []*tradingPairs
+	var result []*TradingPair
 
 	if Leverages.Data != nil {
 		for _, tradingPair := range Leverages.Data {
@@ -111,7 +116,7 @@ type SymbolInfo struct {
 func SymbolDetails() (error, []*SymbolInfo) {
 	requestTest, err := function.GetDetails(config.DetailUrl)
 	if err != nil {
-		return err, nil
+		return errors.New("解析get请求SymbolDetails错误信息:" + err.Error()), nil
 	}
 
 	var SymbolData futureDetails
@@ -126,6 +131,6 @@ func SymbolDetails() (error, []*SymbolInfo) {
 			result = append(result, &newSymbol)
 		}
 	}
-	return nil, result
 
+	return nil, result
 }

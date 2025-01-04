@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	openCloseUrl = "https://future.biconomy.vip/future/api/v1/private/order/submit"
+	openCloseUrl = "https://api-future.biconomy.vip/future/api/v1/private/order/submit"
 )
 
 type orderSuccess struct {

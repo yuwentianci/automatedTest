@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-// PostByteDetails 发送get请求
+// PostByteDetails 发送Post请求
 func PostByteDetails(url string, jsonData []byte) ([]byte, error) {
 
 	req, err := http.NewRequest("POST", url, bytes.NewReader(jsonData))
@@ -20,8 +20,9 @@ func PostByteDetails(url string, jsonData []byte) ([]byte, error) {
 	}
 
 	// 设置请求头
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	req.Header.Set("content-type", "application/json;charset=UTF-8")
 	req.Header.Set("Authorization", config.Token)
+	//req.Header.Set("Token", config.FutureBackendToken)
 
 	// 发送POST请求
 	client := http.Client{}     // 创建一个HTTP客户端
@@ -50,7 +51,7 @@ func PostByteDetails(url string, jsonData []byte) ([]byte, error) {
 	return responseText, nil
 }
 
-// PostByteDetails 发送get请求
+// PostByteDetailsComplete 发送Post请求
 func PostByteDetailsComplete(url string, rawData, target interface{}) error {
 	// 将 JSON 数据序列化为字节数组
 	jsonData, err := json.Marshal(rawData)

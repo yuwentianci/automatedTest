@@ -14,7 +14,7 @@ func main() {
 	positionType := 2
 	price := decimal.NewFromFloat(61232.3)
 
-	crossUnrealizedPNL := future.CrossUnrealizedPNL(position, ticker, symbol)
+	crossUnrealizedPNL := future.TotalCrossUnrealizedPNL(position, ticker, symbol)
 	fmt.Println(crossUnrealizedPNL)
 
 	availableMaxOpen := future.AvailableMaxOpen(price, positionType, position, ticker, symbol, lvg, asset)

@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-	symbol := "BTC_USDT"
-	startDate := "2024-05-25"
+	symbol := "PEOPLE_USDT"
+	startDate := "2024-06-13"
 	assetType := "FUNDING"
 
 	// 解析开始日期

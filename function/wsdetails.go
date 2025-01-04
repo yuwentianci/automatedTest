@@ -3,14 +3,13 @@ package function
 import (
 	"fmt"
 	"github.com/gorilla/websocket"
+	config "myapp/config/future"
 )
 
 func WsDetails(subscribeRequest []byte) []byte {
-	// 设置 WebSocket 地址
-	url := "wss://api-future.biconomy.com/future/websocket"
 
 	// 建立 WebSocket 连接
-	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
+	conn, _, err := websocket.DefaultDialer.Dial(config.TestWSUrl, nil)
 	if err != nil {
 		fmt.Println("无法连接到 WebSocket 服务器:", err)
 	}

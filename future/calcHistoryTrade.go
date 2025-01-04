@@ -34,7 +34,7 @@ type HistoryOrderInfo struct {
 	Symbol          string          `json:"symbol"`
 	Side            int             `json:"side"`
 	DealAvgPriceStr string          `json:"dealAvgPriceStr"`
-	DealVol         int             `json:"dealVol"`
+	DealVol         decimal.Decimal `json:"dealVol"`
 	TakerFee        decimal.Decimal `json:"takerFee"`
 	MakerFee        decimal.Decimal `json:"makerFee"`
 	Profit          decimal.Decimal `json:"profit"`
@@ -88,6 +88,83 @@ func CalcHistoryOrderProfitLoss() (error, decimal.Decimal, decimal.Decimal) {
 	}
 
 	return nil, profit, loss
+}
+
+// CalcHistoryOrderAvgPrice 分别计算单币对的多空方向平均价格
+func CalcHistoryOrderAvgPrice(symbol string, startTime, endTime int64) (error, decimal.Decimal, decimal.Decimal, decimal.Decimal, decimal.Decimal) {
+	longTotal := decimal.Zero
+	shortTotal := decimal.Zero
+	longQty := decimal.Zero
+	shortQty := decimal.Zero
+	longAvgPrice := decimal.Zero
+	shortAvgPrice := decimal.Zero
+	longAmount := decimal.Zero
+	shortAmount := decimal.Zero
+
+	currentPage := 1
+
+	for {
+		// 构建当前页的URL
+		currentPageURL := fmt.Sprintf("%s%s&page_num=%d&start_time=%d&end_time=%d", config.HistoryOrderUrl, symbol, currentPage, startTime, endTime)
+
+		responseTest, err := function.GetDetails(currentPageURL)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		var historyOrderResponse HistoryOrderResponse
+		if err := json.Unmarshal(responseTest, &historyOrderResponse); err != nil {
+			return errors.New("解析JSON响应时发生错误:" + err.Error()), decimal.Zero, decimal.Zero, decimal.Zero, decimal.Zero
+		}
+
+		// 检查响应是否成功
+		if historyOrderResponse.Success {
+			// 遍历结果列表
+			for _, item := range historyOrderResponse.Data.ResultList {
+
+				if item.Side == 1 || item.Side == 2 {
+					dealAvgPriceDec, err := decimal.NewFromString(item.DealAvgPriceStr)
+					if err != nil {
+						return errors.New("解析成交均价时发生错误:" + err.Error()), decimal.Zero, decimal.Zero, decimal.Zero, decimal.Zero
+					}
+
+					longTotal = longTotal.Add(item.DealVol.Mul(dealAvgPriceDec))
+					longQty = longQty.Add(item.DealVol)
+					longAmount = longAmount.Add(One)
+				} else if item.Side == 3 || item.Side == 4 {
+					dealAvgPriceDec, err := decimal.NewFromString(item.DealAvgPriceStr)
+					if err != nil {
+						return errors.New("解析成交均价时发生错误:" + err.Error()), decimal.Zero, decimal.Zero, decimal.Zero, decimal.Zero
+					}
+
+					shortTotal = shortTotal.Add(item.DealVol.Mul(dealAvgPriceDec))
+					shortQty = shortQty.Add(item.DealVol)
+					shortAmount = shortAmount.Add(One)
+				}
+			}
+
+			// 检查是否还有更多的页面
+			if historyOrderResponse.Data.CurrentPage < historyOrderResponse.Data.TotalPage {
+				// 更新当前页数
+				currentPage++
+			} else {
+				// 所有页面都已遍历完成
+				break
+			}
+		} else {
+			return errors.New("请求失败"), decimal.Zero, decimal.Zero, decimal.Zero, decimal.Zero
+		}
+
+	}
+
+	if !longQty.IsZero() {
+		longAvgPrice = longTotal.Div(longQty)
+	}
+	if !shortQty.IsZero() {
+		shortAvgPrice = shortTotal.Div(shortQty)
+	}
+
+	return nil, longAvgPrice, shortAvgPrice, longAmount, shortAmount
 }
 
 type HistoryTradeResponse struct {

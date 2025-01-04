@@ -55,7 +55,7 @@ func CalcFee(symbol string, startTime, endTime int64, assetType string) (error, 
 		if assetRecord.Success {
 			// 遍历结果列表
 			for _, item := range assetRecord.Data.ResultList {
-				if item.Type == "FUNDING" {
+				if item.Type == assetType {
 					amount := decimal.NewFromFloat(item.Amount)
 					totalFundingAmount = totalFundingAmount.Add(amount)
 				}
@@ -75,4 +75,39 @@ func CalcFee(symbol string, startTime, endTime int64, assetType string) (error, 
 	}
 
 	return nil, totalFundingAmount
+}
+
+func CalcCloseFee(position []*PositionInfo, ticker []*TickerInfo, symbol []*SymbolInfo) decimal.Decimal {
+	TotalFee := decimal.Zero
+	// 遍历持仓
+	for _, positions := range position {
+		// 查找对应的行情
+		var Tickers *TickerInfo
+		for _, tickers := range ticker {
+			if positions.Symbol == tickers.Symbol {
+				Tickers = tickers
+				break
+			}
+		}
+
+		// 查找对应的交易对详情
+		var Symbols *SymbolInfo
+		for _, symbols := range symbol {
+			if positions.Symbol == symbols.Symbol {
+				Symbols = symbols
+				break
+			}
+		}
+
+		if Tickers == nil || Symbols == nil {
+			return decimal.Zero
+		}
+
+		// 计算持仓的除自己交易对外其他全仓仓位的平仓手续费
+		if positions.Symbol != config.Symbol {
+			TotalFee = TotalFee.Add(positions.HoldVol.Mul(Tickers.FairPrice).Mul(Symbols.Fv).Mul(Symbols.Tfr))
+		}
+	}
+
+	return TotalFee
 }
